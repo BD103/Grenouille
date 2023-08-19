@@ -51,7 +51,7 @@ jobs:
 
       - name: ZIP Project
         working-directory: platform/linux
-        run: zip --recurse-paths ../${{ env.name }}.zip
+        run: zip -r ../${{ env.name }}.zip .
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
