@@ -42,3 +42,19 @@ jobs:
 
       - name: Build Project
         run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Bundle Project
+        run: |
+          mkdir -p platform/linux
+          cp target/${{ matrix.target }}/release/${{ env.name }} platform/linux
+          cp -r assets platform/linux/assets
+
+      - name: ZIP Project
+        working-directory: platform/linux
+        run: zip --recurse-paths ../${{ env.name }}.zip
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.name }}-${{ matrix.target }}
+          path: platform/${{ env.name }}.zip
