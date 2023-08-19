@@ -11,6 +11,7 @@ on:
 
 env:
   name: grenouille
+  rust-toolchain: nightly
 
 jobs:
   build:
@@ -26,3 +27,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust-toolchain }}
+          target: ${{ matrix.target }}
+
+      - run: rustc --version
