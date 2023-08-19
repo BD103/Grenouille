@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Grenouille</title>
+</head>
+
+<body style="margin: 0px;">
+    <noscript>
+        Hello, rebellious internet user!
+        Unfortunately, this silly little frog requires Javascript + WebAssembly.
+        Please enable it in your browser and refresh the page. :D
+    </noscript>
+
+    <script type="module">
+        import "./restart-audio-context.js";
+        import init from "./grenouille.js";
+        
+        init().catch((error) => {
+            if (!error.message.startsWith("Using exceptions for control flow, don't mind me. This isn't actually an error!")) {
+                throw error;
+            }
+        });
+    </script>
+</body>
+
+</html>
