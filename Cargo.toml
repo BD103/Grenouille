@@ -1,0 +1,38 @@
+[package]
+name = "grenouille"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies.bevy]
+version = "0.11.1"
+default-features = false
+features = [
+    # Bevy Features
+    "bevy_asset",
+    "bevy_winit",
+    "bevy_render",
+    "bevy_core_pipeline",
+    "bevy_sprite",
+
+    # File Formats
+    "png",
+
+    # Platform Specific
+    "x11",
+    "wayland",
+    "android_shared_stdcxx",
+    "webgl2",
+
+    # Extra
+    "multi-threaded",
+
+    # Dev
+    # "dynamic_linking",
+    # "filesystem_watcher",
+]
+
+[profile.wasm-release]
+inherits = "release"
+
+# Optimize with size in mind
+opt-level = "z"
