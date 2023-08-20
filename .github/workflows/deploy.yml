@@ -121,14 +121,24 @@ jobs:
           name: ${{ env.name }}-${{ env.target }}
           path: platform/${{ env.platform }}
 
+      - name: Upload Github Pages Artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: platform/${{ env.platform }}
+
   deploy-website:
     runs-on: ubuntu-latest
     needs: build-wasm
 
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.name }}-wasm32-unknown-unknown
+    permissions:
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
-      - run: ls -R
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
