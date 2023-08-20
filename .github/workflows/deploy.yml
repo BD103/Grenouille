@@ -1,0 +1,144 @@
+name: Build Binaries
+
+on:
+  push:
+    branches:
+      - main
+      # TODO: Delete this
+      - build-ci
+
+  workflow_dispatch:
+
+env:
+  name: grenouille
+  rust-toolchain: stable
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    env:
+      target: x86_64-unknown-linux-gnu
+      platform: linux
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust-toolchain }}
+          target: ${{ env.target }}
+
+      - name: Install Libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
+
+      - name: Build Project
+        run: cargo build --release --target ${{ env.target }}
+
+      - name: Bundle Project
+        run: |
+          mkdir -p platform/${{ env.platform }}
+          cp target/${{ env.target }}/release/${{ env.name }} platform/${{ env.platform }}
+          cp -r assets platform/${{ env.platform }}/assets
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.name }}-${{ env.target }}
+          path: platform/${{ env.platform }}
+
+  build-windows:
+    runs-on: windows-latest
+
+    env:
+      target: x86_64-pc-windows-msvc
+      platform: windows
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust-toolchain }}
+          target: ${{ env.target }}
+
+      - name: Build Project
+        run: cargo build --release --target ${{ env.target }}
+
+      - name: Bundle Project
+        run: |
+          mkdir -p platform/${{ env.platform }}
+          cp target/${{ env.target }}/release/${{ env.name }}.exe platform/${{ env.platform }}
+          cp -r assets platform/${{ env.platform }}/assets
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.name }}-${{ env.target }}
+          path: platform/${{ env.platform }}
+
+  build-wasm:
+    runs-on: ubuntu-latest
+
+    env:
+      target: wasm32-unknown-unknown
+      platform: wasm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust-toolchain }}
+          target: ${{ env.target }}
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install wasm-bindgen
+        run: cargo binstall -y wasm-bindgen-cli
+
+      - name: Build Project
+        run: cargo build --release --target ${{ env.target }}
+
+      - name: Bundle Project
+        run: |
+          mkdir -p platform/${{ env.platform }}
+          wasm-bindgen --no-typescript --target web --out-dir platform/${{ env.platform }} target/${{ env.target }}/release/${{ env.name }}.wasm
+          cp -r assets platform/${{ env.platform }}/assets
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.name }}-${{ env.target }}
+          path: platform/${{ env.platform }}
+
+      - name: Upload Github Pages Artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: platform/${{ env.platform }}
+
+  deploy-website:
+    runs-on: ubuntu-latest
+    needs: build-wasm
+
+    permissions:
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
