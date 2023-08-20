@@ -10,7 +10,7 @@ Uhhh... I'm still working on it right now. :P I'll fill this in soon.
 
 ## Todo
 
-- [ ] Blinking frog
+- [x] Blinking frog
 - [ ] Squish the frog with a (> . <) face
     - [ ] Sound effect?! :O
 - [ ] Fun shapes in the background
