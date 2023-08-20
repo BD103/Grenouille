@@ -1,9 +1,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod frog;
+mod title;
 
 use bevy::prelude::*;
 use frog::FrogPlugin;
+use title::TitlePlugin;
 
 fn main() {
     let mut app = App::new();
@@ -20,6 +22,7 @@ fn main() {
                 ..default()
             }),
         FrogPlugin,
+        TitlePlugin,
     ))
     .insert_resource(ClearColor(Color::rgb_u8(0xff, 0xb0, 0xbf)))
     .add_systems(Startup, setup);

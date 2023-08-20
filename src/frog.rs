@@ -53,7 +53,11 @@ pub fn spawn_frog(
         .spawn((
             Frog,
             TransformBundle {
-                local: Transform::from_scale(Vec3::new(2.0, 2.0, 1.0)),
+                local: Transform {
+                    translation: Vec3::new(0.0, -32.0, 0.0),
+                    scale: Vec3::new(2.0, 2.0, 1.0),
+                    ..default()
+                },
                 ..default()
             },
             VisibilityBundle::default(),
