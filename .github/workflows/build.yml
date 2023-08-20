@@ -39,10 +39,42 @@ jobs:
       - name: Build Project
         run: cargo build --release --target ${{ env.target }}
 
-      - name: Bundle Project Linux
+      - name: Bundle Project
         run: |
           mkdir -p platform/${{ env.platform }}
           cp target/${{ env.target }}/release/${{ env.name }} platform/${{ env.platform }}
+          cp -r assets platform/${{ env.platform }}/assets
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.name }}-${{ env.target }}
+          path: platform/${{ env.platform }}
+
+  build-windows:
+    runs-on: windows-latest
+
+    env:
+      target: x86_64-pc-windows-msvc
+      platform: windows
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust-toolchain }}
+          target: ${{ env.target }}
+
+      - name: Build Project
+        run: cargo build --release --target ${{ env.target }}
+
+      - name: Bundle Project
+        run: |
+          mkdir -p platform/${{ env.platform }}
+          cp target/${{ env.target }}/release/${{ env.name }}.exe platform/${{ env.platform }}
           cp -r assets platform/${{ env.platform }}/assets
 
       - name: Upload Artifact
@@ -77,7 +109,7 @@ jobs:
       - name: Build Project
         run: cargo build --release --target ${{ env.target }}
 
-      - name: Bundle Project WASM
+      - name: Bundle Project
         run: |
           mkdir -p platform/${{ env.platform }}
           wasm-bindgen --no-typescript --target web --out-dir platform/${{ env.platform }} target/${{ env.target }}/release/${{ env.name }}.wasm
