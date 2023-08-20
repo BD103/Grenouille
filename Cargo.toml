@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies.bevy]
-version = "0.11.1"
+version = "0.11.2"
 default-features = false
 features = [
     # Bevy Features
@@ -30,9 +30,3 @@ features = [
     # "dynamic_linking",
     # "filesystem_watcher",
 ]
-
-[profile.wasm-release]
-inherits = "release"
-
-# Optimize with size in mind
-opt-level = "z"
