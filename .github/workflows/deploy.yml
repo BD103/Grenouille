@@ -1,12 +1,6 @@
 name: Build Binaries
 
 on:
-  push:
-    branches:
-      - main
-      # TODO: Delete this
-      - build-ci
-
   workflow_dispatch:
 
 env:
