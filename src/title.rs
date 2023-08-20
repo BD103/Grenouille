@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+/// The required title plugin.
 pub struct TitlePlugin;
 
 impl Plugin for TitlePlugin {
@@ -8,9 +9,11 @@ impl Plugin for TitlePlugin {
     }
 }
 
+/// The title component tag.
 #[derive(Component, Debug)]
 pub struct Title;
 
+/// Spawns in the title on [`Startup`].
 pub fn spawn_title(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Title,

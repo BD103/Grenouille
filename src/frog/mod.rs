@@ -2,6 +2,9 @@ pub mod eyes;
 
 use bevy::prelude::*;
 
+/// The required frog plugin.
+///
+/// This spawns the frog and animates it.
 pub struct FrogPlugin;
 
 impl Plugin for FrogPlugin {
@@ -11,15 +14,23 @@ impl Plugin for FrogPlugin {
     }
 }
 
+/// The frog component tag.
 #[derive(Component, Debug)]
 pub struct Frog;
 
+/// The frog body component tag.
+///
+/// This is a child of [`Frog`].
 #[derive(Component, Debug)]
 pub struct FrogBody;
 
+/// The frog mouth component tag.
+///
+/// This is a child of [`Frog`].
 #[derive(Component, Debug)]
 pub struct FrogMouth;
 
+/// Spawns in a [`Frog`] and children at [`Startup`].
 pub fn spawn_frog(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -84,6 +95,9 @@ pub fn spawn_frog(
         ));
 }
 
+/// Represents a [`TextureAtlasSprite`]'s animation indices.
+///
+/// This should be used alongside [`AnimationTimer`] and [`SpriteSheetBundle`].
 #[derive(Component, Debug)]
 pub struct AnimationIndices {
     pub first: usize,
@@ -91,6 +105,7 @@ pub struct AnimationIndices {
 }
 
 impl AnimationIndices {
+    /// Creates a new [`AnimationIndices`] where `first` and `last` are the same.
     pub const fn splat(indice: usize) -> Self {
         AnimationIndices {
             first: indice,
@@ -99,9 +114,14 @@ impl AnimationIndices {
     }
 }
 
+/// A [`Timer`] wrapped used to trigger an animation.
+///
+/// This should be used alongside [`AnimationIndices`] and [`SpriteSheetBundle`]. The indice steps
+/// forward every time the timer finishes.
 #[derive(Component, Deref, DerefMut, Debug)]
 pub struct AnimationTimer(Timer);
 
+/// Animates any entity with a texture atlas, [`AnimationIndices`], and [`AnimationTimer`].
 pub fn animate_sprite(
     time: Res<Time>,
     mut query: Query<(
