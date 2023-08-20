@@ -14,19 +14,12 @@ env:
   rust-toolchain: stable
 
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            platform: linux
-          - os: ubuntu-latest
-            target: wasm32-unknown-unknown
-            platform: wasm
+  build-linux:
+    runs-on: ubuntu-latest
 
-    runs-on: ${{ matrix.os }}
+    env:
+      target: x86_64-unknown-linux-gnu
+      platform: linux
 
     steps:
       - name: Checkout
@@ -36,39 +29,62 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.rust-toolchain }}
-          target: ${{ matrix.target }}
+          target: ${{ env.target }}
 
-      - name: Install Linux Libraries
-        if: ${{ matrix.platform == 'linux' }}
+      - name: Install Libraries
         run: |
           sudo apt-get update
           sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 
-      - name: Install WASM Tools
-        if: ${{ matrix.platform == 'wasm' }}
-        run: |
-          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          cargo binstall -y wasm-bindgen-cli
-
       - name: Build Project
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ env.target }}
 
       - name: Bundle Project Linux
-        if: ${{ matrix.platform == 'linux' }}
         run: |
-          mkdir -p platform/${{ matrix.platform }}
-          cp target/${{ matrix.target }}/release/${{ env.name }} platform/${{ matrix.platform }}
-          cp -r assets platform/${{ matrix.platform }}/assets
-
-      - name: Bundle Project WASM
-        if: ${{ matrix.platform == 'wasm' }}
-        run: |
-          mkdir -p platform/${{ matrix.platform }}
-          wasm-bindgen --no-typescript --target web --out-dir platform/${{ matrix.platform }} target/${{ matrix.target }}/release/${{ env.name }}.wasm
-          cp -r assets platform/${{ matrix.platform }}/assets
+          mkdir -p platform/${{ env.platform }}
+          cp target/${{ env.target }}/release/${{ env.name }} platform/${{ env.platform }}
+          cp -r assets platform/${{ env.platform }}/assets
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.name }}-${{ matrix.target }}
-          path: platform/${{ matrix.platform }}
+          name: ${{ env.name }}-${{ env.target }}
+          path: platform/${{ env.platform }}
+
+  build-wasm:
+    runs-on: ubuntu-latest
+
+    env:
+      target: wasm32-unknown-unknown
+      platform: wasm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.rust-toolchain }}
+          target: ${{ env.target }}
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install wasm-bindgen
+        run: cargo binstall -y wasm-bindgen-cli
+
+      - name: Build Project
+        run: cargo build --release --target ${{ env.target }}
+
+      - name: Bundle Project WASM
+        run: |
+          mkdir -p platform/${{ env.platform }}
+          wasm-bindgen --no-typescript --target web --out-dir platform/${{ env.platform }} target/${{ env.target }}/release/${{ env.name }}.wasm
+          cp -r assets platform/${{ env.platform }}/assets
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.name }}-${{ env.target }}
+          path: platform/${{ env.platform }}
