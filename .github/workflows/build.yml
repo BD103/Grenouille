@@ -11,7 +11,7 @@ on:
 
 env:
   name: grenouille
-  rust-toolchain: nightly
+  rust-toolchain: stable
 
 jobs:
   build:
@@ -22,6 +22,9 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             platform: linux
+          - os: ubuntu-latest
+            target: wasm32-unknown-unknown
+            platform: wasm
 
     runs-on: ${{ matrix.os }}
 
@@ -35,20 +38,33 @@ jobs:
           toolchain: ${{ env.rust-toolchain }}
           target: ${{ matrix.target }}
 
-      - name: Install Libraries
+      - name: Install Linux Libraries
         if: ${{ matrix.platform == 'linux' }}
         run: |
           sudo apt-get update
           sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 
+      - name: Install WASM Tools
+        if: ${{ matrix.platform == 'wasm' }}
+        run: |
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          cargo binstall -y wasm-bindgen-cli
+
       - name: Build Project
         run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Bundle Project
+      - name: Bundle Project Linux
         if: ${{ matrix.platform == 'linux' }}
         run: |
           mkdir -p platform/${{ matrix.platform }}
           cp target/${{ matrix.target }}/release/${{ env.name }} platform/${{ matrix.platform }}
+          cp -r assets platform/${{ matrix.platform }}/assets
+
+      - name: Bundle Project WASM
+        if: ${{ matrix.platform == 'wasm' }}
+        run: |
+          mkdir -p platform/${{ matrix.platform }}
+          wasm-bindgen --no-typescript --target web --out-dir platform/${{ matrix.platform }} target/${{ matrix.target }}/release/${{ env.name }}.wasm
           cp -r assets platform/${{ matrix.platform }}/assets
 
       - name: Upload Artifact
