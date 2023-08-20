@@ -1,4 +1,4 @@
-name: Build Binaries
+name: Build and Deploy
 
 on:
   workflow_dispatch:
