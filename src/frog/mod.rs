@@ -37,7 +37,7 @@ pub fn spawn_frog(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     let texture_handle = asset_server.load("frog.png");
-    let atlas = TextureAtlas::from_grid(texture_handle, Vec2::splat(128.0), 3, 3, None, None);
+    let atlas = TextureAtlas::from_grid(texture_handle, Vec2::splat(128.0), 4, 4, None, None);
     let atlas_handle = texture_atlases.add(atlas);
 
     fn create_child(
@@ -89,7 +89,10 @@ pub fn spawn_frog(
         ))
         .with_children(create_child(
             FrogMouth,
-            AnimationIndices { first: 6, last: 8 },
+            AnimationIndices {
+                first: 12,
+                last: 14,
+            },
             atlas_handle,
             (),
         ));

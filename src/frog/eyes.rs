@@ -5,9 +5,9 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 /// [`AnimationIndices`] for when the frog's eyes are open.
-pub const OPEN_INDICES: AnimationIndices = AnimationIndices { first: 3, last: 4 };
+pub const OPEN_INDICES: AnimationIndices = AnimationIndices { first: 6, last: 7 };
 /// [`AnimationIndices`] for when the frog's eyes are blinking.
-pub const BLINK_INDICES: AnimationIndices = AnimationIndices::splat(5);
+pub const BLINK_INDICES: AnimationIndices = AnimationIndices::splat(8);
 
 /// Seconds that the frog's eyes stay open.
 pub const OPEN_DURATION: f32 = 5.0;
@@ -64,13 +64,13 @@ pub fn blink_frog(
             FrogEyes::Open => {
                 *frog_eyes = FrogEyes::Blinking;
                 *indices = BLINK_INDICES;
-                sprite.index = 5;
+                sprite.index = BLINK_INDICES.first;
                 blink_timer.set_blinking();
             }
             FrogEyes::Blinking => {
                 *frog_eyes = FrogEyes::Open;
                 *indices = OPEN_INDICES;
-                sprite.index = 3;
+                sprite.index = OPEN_INDICES.first;
                 blink_timer.set_open();
             }
         }
