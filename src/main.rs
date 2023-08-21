@@ -1,8 +1,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod animate;
 mod frog;
 mod title;
 
+use animate::AnimatePlugin;
 use bevy::prelude::*;
 use frog::FrogPlugin;
 use title::TitlePlugin;
@@ -23,6 +25,7 @@ fn main() {
             }),
         FrogPlugin,
         TitlePlugin,
+        AnimatePlugin,
     ))
     .insert_resource(ClearColor(Color::rgb_u8(0xff, 0xb0, 0xbf)))
     .add_systems(Startup, setup);

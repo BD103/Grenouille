@@ -1,5 +1,6 @@
 pub mod eyes;
 
+use crate::animate::{AnimationIndices, AnimationTimer};
 use bevy::prelude::*;
 
 /// The required frog plugin.
@@ -10,7 +11,7 @@ pub struct FrogPlugin;
 impl Plugin for FrogPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_frog)
-            .add_systems(Update, (animate_sprite, eyes::blink_frog));
+            .add_systems(Update, eyes::blink_frog);
     }
 }
 
@@ -96,52 +97,4 @@ pub fn spawn_frog(
             atlas_handle,
             (),
         ));
-}
-
-/// Represents a [`TextureAtlasSprite`]'s animation indices.
-///
-/// This should be used alongside [`AnimationTimer`] and [`SpriteSheetBundle`].
-#[derive(Component, Debug)]
-pub struct AnimationIndices {
-    pub first: usize,
-    pub last: usize,
-}
-
-impl AnimationIndices {
-    /// Creates a new [`AnimationIndices`] where `first` and `last` are the same.
-    pub const fn splat(indice: usize) -> Self {
-        AnimationIndices {
-            first: indice,
-            last: indice,
-        }
-    }
-}
-
-/// A [`Timer`] wrapped used to trigger an animation.
-///
-/// This should be used alongside [`AnimationIndices`] and [`SpriteSheetBundle`]. The indice steps
-/// forward every time the timer finishes.
-#[derive(Component, Deref, DerefMut, Debug)]
-pub struct AnimationTimer(Timer);
-
-/// Animates any entity with a texture atlas, [`AnimationIndices`], and [`AnimationTimer`].
-pub fn animate_sprite(
-    time: Res<Time>,
-    mut query: Query<(
-        &AnimationIndices,
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-    )>,
-) {
-    for (indices, mut timer, mut sprite) in &mut query {
-        timer.tick(time.delta());
-
-        if timer.just_finished() {
-            sprite.index = if sprite.index == indices.last {
-                indices.first
-            } else {
-                sprite.index + 1
-            };
-        }
-    }
 }

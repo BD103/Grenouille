@@ -1,6 +1,6 @@
 //! Specific functionality related to the frog's eyes.
 
-use super::AnimationIndices;
+use crate::animate::AnimationIndices;
 use bevy::prelude::*;
 use std::time::Duration;
 
